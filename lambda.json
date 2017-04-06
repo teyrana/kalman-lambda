@@ -1,0 +1,23 @@
+{
+    "name": "helloworld",
+    "description": "Python Lambda Boilerplate",
+    "region": "us-east-1",
+    "role": "arn:aws:iam::433122885944:role/lambdaTestRole",
+    "handler": "lambda-code.lambda_handler",
+    "memory_size": 64,
+    "timeout": 3,
+    "py_modules": [
+        "lambda-code"
+    ],
+    "packages": {
+        "exclude": [
+            "tests",
+            "tests.*"
+        ]
+    },
+    "deps": [
+        "requests",
+        "-rrequirements.txt"
+    ],
+    "publish": true
+}
