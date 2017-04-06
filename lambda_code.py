@@ -1,16 +1,12 @@
 #!python
 from __future__ import print_function
 
-import boto3
 import json
 import sys
 
 sys.path.append("./libs")
-import requests
 
 print('Loading function')
-
-batch = boto3.client('batch')
 
 def lambda_handler(event, context):
     # Log the received event
