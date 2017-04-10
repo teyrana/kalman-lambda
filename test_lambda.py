@@ -23,29 +23,18 @@ def createEvent( location, variance=1.0, prior={}, origin='gps' ):
 
     return result;
 
-class IntentTestCase(unittest.TestCase):
-
-    def setUp(self):
-        measurement_count = 20;
-
-        initial_truth = np.array([ 24, 45])
-
-        error_variance = 1.0;
-        error_covariance = np.multiply( error_variance, np.ones([2,2]));
-
-        # isn't numpy cool?
-        self.measurements = norm( mean= initial_truth, cov=error_covariance, size = measurement_count)
+class TestLambda(unittest.TestCase):
 
     def test_initial_filter( self):
         # pass in first point: without previous state continuity
         #print( "    (" +str(self.measurements[0][0])+", "+str(self.measurements[0][1])+")")
-        event = createEvent( self.measurements[0] )
+        event = createEvent( [ 23.3291, 44.3291], variance=10.0)
 
         result = lambda_handler( event, None);
 
-        self.assertEqual( result['latitude'], self.measurements[0][0]);
-        self.assertEqual( result['longitude'], self.measurements[0][1]);
-        self.assertEqual( result['variance'], 1.0);
+        self.assertEqual( result['latitude'], event['latitude'])
+        self.assertEqual( result['longitude'], event['longitude'])
+        self.assertEqual( result['variance'], event['variance']);
 
 
     def test_single_update( self):
@@ -70,6 +59,40 @@ class IntentTestCase(unittest.TestCase):
         self.assertAlmostEqual( result['variance'], expected['variance'], places=4)
 
 
+
+    def test_multiple_update( self):
+        measurement_count = 60;
+        initial_truth = np.array([ 24, 45])
+        error_variance = 5.0;
+        error_covariance = np.multiply( error_variance, np.identity(2))
+        measurements = norm( mean= initial_truth, cov=error_covariance, size = measurement_count)
+
+        # pass in first point: without previous state continuity
+        priorEvent = None
+        events=[];
+        results=np.empty_like( measurements )
+        resultIndex = 0
+        for location in measurements:
+            currentEvent = createEvent( location, prior = priorEvent )
+
+            result = lambda_handler( currentEvent, None)
+
+            results[resultIndex] = [ result['latitude'], result['longitude']]
+            resultIndex += 1
+
+            # if 'prior' in currentEvent:
+                # print("....[{:>8.6}, {:>8.6}] => [{:>8.6}, {:>8.6}]( {:>6.6})".format(
+                #     location[0], location[1],
+                #     currentEvent['prior']['latitude'], currentEvent['prior']['longitude'], currentEvent['prior']['variance']))
+                # print("........................... [{:>8.6}, {:>8.6}]( {:>6.6})".format(
+                #     result['latitude'], result['longitude'], result['variance']))
+
+            priorEvent = result
+
+        # print( results )
+        self.assertAlmostEqual( result['latitude'], initial_truth[0], delta=5)
+        self.assertAlmostEqual( result['longitude'], initial_truth[1], delta=5)
+        self.assertAlmostEqual( result['variance'], 1, delta = 2)
 
 
 if __name__ == '__main__':

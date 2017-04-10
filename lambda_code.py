@@ -16,6 +16,8 @@ from pykalman import KalmanFilter, UnscentedKalmanFilter
 TRANSITION_MATRIX = np.eye( 2)
 OBSERVATION_MATRIX = np.eye( 2)
 COVARIANCE_MATRIX = np.eye( 2)
+CELL_VARIANCE = 1000.0
+GPS_VARIANCE = 10.0
 
 # EVENT I/O KEYS
 MEASUREMENT_KEY = 'now'
@@ -28,9 +30,9 @@ def get_variance( event ):
     if 'origin' in event:
         if 'cel' in event['origin']:
             # if this is a cell tower, degreed the effective accuracy
-            return 1000;
+            return CELL_VARIANCE
 
-    return 1.0
+    return GPS_VARIANCE
 
 
 # possibly refactor to a more efficient version:
@@ -43,10 +45,6 @@ def process_update( measure, variance, prev_state, prev_cov ):
 def lambda_handler(event, context):
     # Log the received event
     #   implement me!
-
-    # print("Received event:");
-    # for key, value in event.items():
-    #     print("    [{}] = {}".format( key, value))
 
     try:
         variance = get_variance( event )
