@@ -12,8 +12,6 @@ from lambda_code import lambda_handler;
 import numpy as np;
 from numpy.random import multivariate_normal as norm
 
-import matplotlib.pyplot as plot
-
 def createEvent( location, variance=1.0, prior={}, origin='gps' ):
     result = {
         'origin': origin,

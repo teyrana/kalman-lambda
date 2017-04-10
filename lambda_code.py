@@ -6,10 +6,8 @@ import json
 import sys
 
 sys.path.append("./libs")
-
 import numpy as np
-import scipy
-from pykalman import KalmanFilter, UnscentedKalmanFilter
+from pykalman import KalmanFilter
 
 # CONSTANT PARAMETERS
 
