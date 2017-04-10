@@ -1,4 +1,4 @@
-#!python
+#!python -W ignore  -m unittest test_lambda
 
 # for new-style print(...)
 from __future__ import print_function
@@ -7,17 +7,16 @@ import csv
 import sys
 import unittest
 
-
 from lambda_code import lambda_handler;
 
 import numpy as np;
 from numpy.random import multivariate_normal as norm
 
-def createEvent( latitude, longitude, variance=1.0, prior={}, origin='gps' ):
+def createEvent( location, variance=1.0, prior={}, origin='gps' ):
     result = {
         'origin': origin,
-        'latitude': latitude,
-        'longitude': longitude,
+        'latitude': location[0],
+        'longitude': location[1],
         'variance': variance};
     if prior:
         result['prior']= prior
@@ -40,7 +39,7 @@ class IntentTestCase(unittest.TestCase):
     def test_initial_filter( self):
         # pass in first point: without previous state continuity
         #print( "    (" +str(self.measurements[0][0])+", "+str(self.measurements[0][1])+")")
-        event = createEvent( self.measurements[0][0], self.measurements[0][1] )
+        event = createEvent( self.measurements[0] )
 
         result = lambda_handler( event, None);
 
@@ -49,28 +48,27 @@ class IntentTestCase(unittest.TestCase):
         self.assertEqual( result['variance'], 1.0);
 
 
-    def test_next_call( self):
-        pass
-        # print( "running Kalman Filter update: ");
-        #
-        # # pass in first point: without previous state continuity
-        # #print( "    (" +str(self.measurements[0][0])+", "+str(self.measurements[0][1])+")")
-        # events=[];
-        # events.append( createEvent( self.measurements[0][0], self.measurements[0][1]))
-        # events.append( createEvent( self.measurements[1][0], self.measurements[1][1], prior = events[0]))
-        #
-        # # print("..event[0]: {}".format( events[0]));
-        # # print("..event[1]: {}".format( events[1]));
-        #
-        # result = lambda_handler( events[1], None);
-        #
-        # print( result );
-        #
-        # self.assertEqual( result['latitude'], self.measurements[0][0]);
-        # self.assertEqual( result['longitude'], self.measurements[0][1]);
-        # self.assertEqual( result['variance'], 1.0);
-        #
-        # print( result );
+    def test_single_update( self):
+
+        firstEvent = createEvent( [ 23.3291, 44.3291])
+        secondEvent = createEvent( [ 23.4227, 44.4227], prior = firstEvent )
+        # print('    >> event[0]= [{}, {}]: {}'.format( firstEvent['latitude'], firstEvent['longitude'], firstEvent['variance']))
+        # print('    >> event[1]= [{}, {}]: {}'.format( secondEvent['latitude'],secondEvent['longitude'],secondEvent['variance']))
+
+        # simulate first call:
+        result = lambda_handler( secondEvent, None);
+
+        expected = {
+            'latitude': 23.3915,
+            'longitude': 44.39152286,
+            'variance': 0.666666666667
+        }
+
+        # print("    << result=   [{}, {}]: {}".format( expected['latitude'], expected['longitude'], expected['variance']))
+        self.assertAlmostEqual( result['latitude'], expected['latitude'], places=4, msg="latitude mismatch from filter!")
+        self.assertAlmostEqual( result['longitude'], expected['longitude'], places=4, msg="longitude mismatch from filter!")
+        self.assertAlmostEqual( result['variance'], expected['variance'], places=4)
+
 
 
 

@@ -8,11 +8,14 @@ import sys
 sys.path.append("./libs")
 
 import numpy as np
+import scipy
+from pykalman import KalmanFilter, UnscentedKalmanFilter
 
 # CONSTANT PARAMETERS
 
 TRANSITION_MATRIX = np.eye( 2)
 OBSERVATION_MATRIX = np.eye( 2)
+COVARIANCE_MATRIX = np.eye( 2)
 
 # EVENT I/O KEYS
 MEASUREMENT_KEY = 'now'
@@ -49,19 +52,17 @@ def lambda_handler(event, context):
         variance = get_variance( event )
 
         if (PREVIOUS_STATE_KEY in event):
-            print("....detected previous state:")
             prev = event[PREVIOUS_STATE_KEY];
             prevMean = np.array([ prev[LATITUDE_KEY], prev[LONGITUDE_KEY]])
-            prevCovar = np.multiply( prev[VARIANCE_KEY], np.eye( S0.shape[0]) )
+            prevCovar = np.multiply( prev[VARIANCE_KEY], COVARIANCE_MATRIX )
 
-            print('    ??: {} <= {}'.format( prevMean, prevCovar ))
+
             kf = KalmanFilter(
                 initial_state_mean=prevMean,
                 initial_state_covariance=prevCovar,
                 em_vars=['transition_covariance', 'observation_covariance'],
                 transition_matrices=TRANSITION_MATRIX)
 
-            print('   ?? kf: '+str(kf))
 
             curObs = np.array([ event[LATITUDE_KEY], event[LONGITUDE_KEY]]);
             curCovar = np.multiply( event[VARIANCE_KEY], np.eye( len(curObs)))
@@ -73,13 +74,10 @@ def lambda_handler(event, context):
                 observation=curObs,
                 observation_covariance=curCovar)
 
-            print('   ?? next_state: '+str( prevMean))
-            print('   ?? next_covar: '+str( prevCovar))
-
             return {
-                LATITUDE_KEY: 1.,
-                LONGITUDE_KEY: 1.,
-                VARIANCE_KEY: 0.,
+                LATITUDE_KEY: nextMean[0],
+                LONGITUDE_KEY: nextMean[1],
+                VARIANCE_KEY: nextCovar[0][0],
             }
 
 
