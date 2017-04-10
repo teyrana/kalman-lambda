@@ -16,8 +16,11 @@ from pykalman import KalmanFilter, UnscentedKalmanFilter
 TRANSITION_MATRIX = np.eye( 2)
 OBSERVATION_MATRIX = np.eye( 2)
 COVARIANCE_MATRIX = np.eye( 2)
-CELL_VARIANCE = 1000.0
-GPS_VARIANCE = 10.0
+
+# yes, this is a magic number.  It's very roughly based on how far
+# a device receiver might be from the cell tower, but is only accurate to a ROM.
+CELL_VARIANCE = 2500.0 # in meters
+GPS_VARIANCE = 10.0 # in meters
 
 # EVENT I/O KEYS
 MEASUREMENT_KEY = 'now'

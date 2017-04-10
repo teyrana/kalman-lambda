@@ -12,6 +12,8 @@ from lambda_code import lambda_handler;
 import numpy as np;
 from numpy.random import multivariate_normal as norm
 
+import matplotlib.pyplot as plot
+
 def createEvent( location, variance=1.0, prior={}, origin='gps' ):
     result = {
         'origin': origin,
@@ -57,7 +59,6 @@ class TestLambda(unittest.TestCase):
         self.assertAlmostEqual( result['latitude'], expected['latitude'], places=4, msg="latitude mismatch from filter!")
         self.assertAlmostEqual( result['longitude'], expected['longitude'], places=4, msg="longitude mismatch from filter!")
         self.assertAlmostEqual( result['variance'], expected['variance'], places=4)
-
 
 
     def test_multiple_update( self):
