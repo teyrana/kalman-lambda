@@ -1,8 +1,5 @@
 #!python -W ignore  -m unittest test_lambda
 
-# for new-style print(...)
-from __future__ import print_function
-
 import csv
 import sys
 import unittest
