@@ -5,7 +5,16 @@ A basic package with files needed to develop AWS Lambda functions using python.
 
 # Initialization
 
-Create a virtual environment with `virtualenv  $DIR`
+The makefile and and development expect an existing virtualenv based on 3.6
+(But may very well work without it.)
+
+The authors used: 'pyenv' + 'pyenv-virtualenv'
+
+# Requirements:
+- Python 3.6 (i.e. the version 3.x supported by Amazon Lambda)
+- pykalman
+  -- numpy
+  -- scipy
 
 # Development
 
