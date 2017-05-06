@@ -10,13 +10,14 @@ ZIPFILE_NAME = lambda.zip
 # filename.function where the lambda handler is located:
 HANDLER = lambda-code.lambda_handler
 
-clean_pyc :
-	find . | grep -e ".pyc$$" | xargs rm
+clean:
+	rm -rf __pycache__
+	rm -rf ./libs/
 
 install_deps :
-	pip install -r requirements.txt -t libs/
+	pip install --upgrade -r requirements.txt -t libs/
 
-build : install_deps clean_pyc
+build : install_deps clean
 	zip $(ZIPFILE_NAME) -r *
 
 create : build
@@ -26,3 +27,7 @@ update: build
 	aws lambda update-function-code --region $(REGION) --function-name $(FUNCTION_NAME) --zip-file fileb://$(ZIPFILE_NAME) --publish
 
 deploy: update
+
+.PHONY: test
+test:
+	python -W ignore -m unittest test_lambda
