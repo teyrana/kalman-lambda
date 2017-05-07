@@ -12,9 +12,12 @@ The authors used: 'pyenv' + 'pyenv-virtualenv'
 
 # Requirements:
 - Python 3.6 (i.e. the version 3.x supported by Amazon Lambda)
-- pykalman
+- pip (used to install...)
+  -- pykalman
   -- numpy
   -- scipy
+- docker
+
 
 # Development
 

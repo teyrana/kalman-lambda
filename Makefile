@@ -1,32 +1,29 @@
-# overall account id
-ACCOUNT_ID = 433122885944
-ROLE_NAME = lambdaTestRole
-# function name (which function? in our file, or in AWS lambda)
-FUNCTION_NAME = testWorld
+# Assumes that the remaining variables are set in the environment
+
+include env.makefile
+
 REGION = us-east-1
 TIMEOUT = 15
 MEMORY_SIZE = 128
 ZIPFILE_NAME = lambda.zip
 # filename.function where the lambda handler is located:
-HANDLER = lambda-code.lambda_handler
+HANDLER = lambda_code.lambda_handler
 
 clean:
 	rm -rf __pycache__
 	rm -rf ./libs/
 
-install_deps :
+install:
 	pip install --upgrade -r requirements.txt -t libs/
 
-build : install_deps clean
-	zip $(ZIPFILE_NAME) -r *
+build: clean
+	docker build -t lambda:build-python3 .
 
-create : build
-	aws lambda create-function --region $(REGION) --function-name $(FUNCTION_NAME) --zip-file fileb://$(ZIPFILE_NAME) --role arn:aws:iam::$(ACCOUNT_ID):role/$(ROLE_NAME)  --handler $(HANDLER) --runtime python2.7 --timeout $(TIMEOUT) --memory-size $(MEMORY_SIZE)
+debug: build
+	docker run -it lambda:build-python3 bash
 
-update: build
-	aws lambda update-function-code --region $(REGION) --function-name $(FUNCTION_NAME) --zip-file fileb://$(ZIPFILE_NAME) --publish
-
-deploy: update
+deploy: build
+	docker run lambda:build-python3
 
 .PHONY: test
 test:
