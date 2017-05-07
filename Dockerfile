@@ -11,12 +11,13 @@ COPY requirements.txt ./
 RUN pip install --upgrade -r requirements.txt -t libs/
 
 COPY env.makefile ./
+
 COPY ./docker.makefile ./Makefile
-RUN touch Makefile env.makefile
+RUN touch Makefile
 
 # finally, install our project into the container
 # ... BUT NOT our dependencies
-COPY lambda_code.py lambda.json requirements.txt ./
+COPY lambda_code.py lambda.json test_lambda.py requirements.txt ./
 
 # Run this make command when the container launches
 CMD ["make", "deploy"]
